@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34302.85
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polly.Demo.Api", "Polly.Demo.Api\Polly.Demo.Api.csproj", "{5A719F1A-9364-45A3-891A-2A3976400574}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polly.Demo.IntegrationTests", "Polly.Demo.IntegrationTests\Polly.Demo.IntegrationTests.csproj", "{46185268-69C7-413A-AD01-94993C5C2574}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5A719F1A-9364-45A3-891A-2A3976400574}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A719F1A-9364-45A3-891A-2A3976400574}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A719F1A-9364-45A3-891A-2A3976400574}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A719F1A-9364-45A3-891A-2A3976400574}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46185268-69C7-413A-AD01-94993C5C2574}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46185268-69C7-413A-AD01-94993C5C2574}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46185268-69C7-413A-AD01-94993C5C2574}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46185268-69C7-413A-AD01-94993C5C2574}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ACA88D7F-2921-4FB3-9D6A-F6D7E8948B7E}
+	EndGlobalSection
+EndGlobal
