@@ -1,15 +1,15 @@
 using Polly.Demo.Api.Factories;
-using Polly.Registry;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddSingleton<IResilienceStrategyFactory, HttpResilienceStrategyFactory>();
+builder.Services.Configure<RetryConfig>(builder.Configuration.GetSection("RetryConfig"));
+builder.Services.AddSingleton<IHttpRetryStrategyFactory, HttpRetryStrategyFactory>();
 builder.Services.AddHttpClient("TimeService").AddPolicyHandler((sp, req) =>
 {
-    var strategyFactory = sp.GetRequiredService<IResilienceStrategyFactory>();
-    return strategyFactory.CreateHttpWaitAndRetryStrategy();
+    var strategyFactory = sp.GetRequiredService<IHttpRetryStrategyFactory>();
+    return strategyFactory.Create();
 });
 
 builder.Services.AddControllers();
