@@ -50,7 +50,8 @@ public class HttpRetryStrategyShould
         const string dummyUrl = "http://dummy.url";
         services.AddHttpClient(mockHttpClientName)
             .ConfigurePrimaryHttpMessageHandler(() => mockHttpMessageHandler.Object)
-            .AddPolicyHandler(retryPolicy);
+            .AddResilienceHandler("RetryHandler",
+                builder => { builder.AddPipeline(httpRetryStrategyFactory.Create()); });
 
         // Build the service provider
         var serviceProvider = services.BuildServiceProvider();

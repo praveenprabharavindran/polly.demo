@@ -1,43 +1,58 @@
-﻿using Microsoft.Extensions.Options;
-using Polly.Extensions.Http;
+﻿using Microsoft.Extensions.Http.Resilience;
+using Microsoft.Extensions.Options;
 using Polly.Timeout;
 
 namespace Polly.Demo.Api.Factories;
 
 public class HttpRetryStrategyFactory : IHttpRetryStrategyFactory
 {
-    private readonly ILogger<HttpRetryStrategyFactory> _logger;
     private readonly RetryConfig _config;
+    private readonly ILogger<HttpRetryStrategyFactory> _logger;
 
     public HttpRetryStrategyFactory(ILogger<HttpRetryStrategyFactory> logger, IOptions<RetryConfig> config)
     {
         _logger = logger;
         _config = config.Value;
-    }    
-    public IAsyncPolicy<HttpResponseMessage> Create()
-    {
-        var timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(_config.PertAttemptTimeoutSeconds);
-
-        var retryPolicy = HttpPolicyExtensions
-            .HandleTransientHttpError()
-            .Or<TimeoutRejectedException>()
-            .WaitAndRetryAsync(_config.MaxRetryAttempts, retryAttempt => TimeSpan.FromSeconds(_config.RetryDelaySeconds));
-        return Policy.WrapAsync(retryPolicy, timeoutPolicy);
     }
-}
 
-public class RetryConfig
-{
-    // PertAttemptTimeoutSeconds is the timeout for each attempt in seconds
-    public int PertAttemptTimeoutSeconds { get; set; }
+    public ResiliencePipeline<HttpResponseMessage> Create()
+    {
+        var timeoutStrategyOptions = MapToTimeoutStrategyOptions(_config);
+        var retryStrategyOptions = MapToHttpRetryStrategyOptions(_config);
+        var pipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            .AddRetry(retryStrategyOptions)
+            .AddTimeout(timeoutStrategyOptions)
+            .Build();
+        return pipeline;
+    }
 
-    // MaxRetryAttempts is the number of retries before giving up
-    public int MaxRetryAttempts { get; set; }
-    
-    // RetryDelaySeconds is the median delay between retries in seconds
-    public int RetryDelaySeconds { get; set; }
-}
-public interface IHttpRetryStrategyFactory
-{
-    IAsyncPolicy<HttpResponseMessage> Create();
+    private TimeoutStrategyOptions MapToTimeoutStrategyOptions(RetryConfig config)
+    {
+        return new TimeoutStrategyOptions
+        {
+            Timeout = TimeSpan.FromSeconds(_config.PertAttemptTimeoutSeconds),
+            OnTimeout = args =>
+            {
+                _logger.LogWarning(
+                    $"{args.Context.OperationKey}: Execution timed out after {args.Timeout.TotalSeconds} seconds.");
+                return default;
+            }
+        };
+    }
+
+    public HttpRetryStrategyOptions MapToHttpRetryStrategyOptions(RetryConfig config)
+    {
+        return new HttpRetryStrategyOptions
+        {
+            MaxRetryAttempts = config.MaxRetryAttempts,
+            Delay = TimeSpan.FromSeconds(config.RetryDelaySeconds),
+            OnRetry = args =>
+            {
+                var msg =
+                    $"{args.Context.OperationKey}: Retry {args.AttemptNumber} implemented with a delay of {args.RetryDelay} seconds, due to: {args.Outcome.Exception?.Message}";
+                _logger.LogWarning(msg);
+                return default;
+            }
+        };
+    }
 }
