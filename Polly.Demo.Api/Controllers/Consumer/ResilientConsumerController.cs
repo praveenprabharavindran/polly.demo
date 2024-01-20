@@ -15,16 +15,16 @@ public class ResilientConsumerController : ControllerBase
         IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
-        _httpClient = httpClientFactory.CreateClient("TimeService");
+        _httpClient = httpClientFactory.CreateClient("ChaoticService");
         _tokenSource = new CancellationTokenSource();
     }
 
-    [HttpGet("{delayMilliseconds:int?}")]
-    public async Task<IActionResult> Get(int delayMilliseconds = 500)
+    [HttpGet]
+    public async Task<IActionResult> Get()
     {
         try
         {
-            var uri = $"https://localhost:7018/TimeService/{delayMilliseconds}";
+            var uri = $"https://localhost:7018/ChaoticService";
             var response = await _httpClient.GetAsync(uri, _tokenSource.Token);
             response.EnsureSuccessStatusCode();
             return Ok(await response.Content.ReadAsStringAsync());

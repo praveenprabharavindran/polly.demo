@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<RetryConfig>(builder.Configuration.GetSection("RetryConfig"));
 builder.Services.AddSingleton<IHttpRetryStrategyFactory, HttpRetryStrategyFactory>();
-builder.Services.AddHttpClient("TimeService").AddResilienceHandler("RetryStrategy", (pipelineBuilder, context) =>
+builder.Services.AddHttpClient("ChaoticService").AddResilienceHandler("RetryStrategy", (pipelineBuilder, context) =>
 {
     var strategyFactory = context.ServiceProvider.GetRequiredService<IHttpRetryStrategyFactory>();
     pipelineBuilder.AddPipeline(strategyFactory.Create());
